@@ -310,8 +310,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 45px;
-            height: 45px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: var(--glass-bg);
             backdrop-filter: var(--glass-blur);
@@ -588,7 +588,12 @@
     <div class="weather-display" id="weatherDisplay"></div>
 
     <!-- Bouton de paramètres -->
-    <button class="settings-btn" id="settingsBtn" title="Customize Links">⚙️</button>
+    <button class="settings-btn" id="settingsBtn" title="Customize Links">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+    </button>
 
     <!-- Modale de paramètres -->
     <div class="modal-overlay" id="settingsModal">
@@ -608,18 +613,15 @@
                 <div class="link-edit-row" style="margin-top: 10px;">
                     <input type="text" id="bgUrlInput" class="greeting-input" placeholder="Or paste an image URL (GIFs work too!)">
                 </div>
-                <div class="link-edit-row" style="margin-top: 15px; flex-direction: column; align-items: flex-start; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
+            </div>
+
+            <div class="modal-section">
+                <h3>Clock Settings</h3>
+                <div class="link-edit-row" style="flex-direction: column; align-items: flex-start; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
                     <label style="display:flex; align-items:center; gap: 10px; cursor: pointer; font-size: 0.95rem;">
-                        <input type="checkbox" id="slideshowCheckbox" style="width: 18px; height: 18px;"> 
-                        Auto Slideshow (every hour from "backgrounds" folder)
+                        <input type="checkbox" id="clockFormatCheckbox" style="width: 18px; height: 18px;"> 
+                        Use 12-hour format (AM/PM)
                     </label>
-                    <div id="slideshowSettings" style="display:none; margin-top: 10px; width: 100%;">
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">
-                            Due to browser security, you must name your images as numbers: <b>1.jpg, 2.jpg, 3.jpg</b>...<br>
-                            How many images did you put in the folder?
-                        </p>
-                        <input type="number" id="slideshowCountInput" class="greeting-input" min="1" value="1" style="max-width: 100px;">
-                    </div>
                 </div>
             </div>
 
@@ -639,11 +641,13 @@
             <div class="modal-section">
                 <h3>Main Shortcuts</h3>
                 <div id="mainShortcutsEdit"></div>
+                <button class="add-btn" id="addMainShortcutBtn" style="margin-top: 10px;">+ Add Shortcut</button>
             </div>
 
             <div class="modal-section">
                 <h3>Small Shortcuts</h3>
                 <div id="smallShortcutsEdit"></div>
+                <button class="add-btn" id="addSmallShortcutBtn" style="margin-top: 10px;">+ Add Shortcut</button>
             </div>
 
             <div class="modal-section">

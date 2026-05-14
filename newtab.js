@@ -1,40 +1,32 @@
 // --- 1. Calendrier / Horloge en temps réel ---
 function applyBackground() {
-    const slideshowEnabled = localStorage.getItem('slideshowEnabled') === 'true';
-    if (slideshowEnabled) {
-        const count = parseInt(localStorage.getItem('slideshowCount')) || 1;
-        let lastTime = parseInt(localStorage.getItem('lastSlideshowTime')) || 0;
-        let currentIdx = parseInt(localStorage.getItem('currentSlideshowIdx')) || 1;
-        
-        const now = Date.now();
-        // 1 heure = 3600000 ms
-        if (now - lastTime > 3600000) {
-            currentIdx = Math.floor(Math.random() * count) + 1;
-            localStorage.setItem('lastSlideshowTime', now);
-            localStorage.setItem('currentSlideshowIdx', currentIdx);
-        }
-        document.body.style.backgroundImage = `url('backgrounds/${currentIdx}.jpg')`;
+    const bg = localStorage.getItem('customBackground');
+    if (bg) {
+        document.body.style.backgroundImage = `url('${bg}')`;
     } else {
-        const bg = localStorage.getItem('customBackground');
-        if (bg) {
-            document.body.style.backgroundImage = `url('${bg}')`;
-        } else {
-            document.body.style.backgroundImage = ''; // Reverts to CSS default
-        }
+        document.body.style.backgroundImage = ''; // Reverts to CSS default
     }
 }
 
 function updateClock() {
     const now = new Date();
     
-    // Format Heure (24h)
+    // Format Heure (24h / 12h)
+    const use12h = localStorage.getItem('clockFormat12h') === 'true';
     let hours = now.getHours();
     let minutes = now.getMinutes();
+    let ampm = '';
+
+    if (use12h) {
+        ampm = hours >= 12 ? ' PM' : ' AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0 devient 12
+    }
     
-    const hoursStr = hours < 10 ? '0' + hours : hours;
+    const hoursStr = hours < 10 && !use12h ? '0' + hours : hours;
     const minutesStr = minutes < 10 ? '0' + minutes : minutes;
     
-    document.getElementById('timeDisplay').textContent = `${hoursStr}:${minutesStr}`;
+    document.getElementById('timeDisplay').textContent = `${hoursStr}:${minutesStr}${ampm}`;
     
     // Format Date
     const options = { weekday: 'long', month: 'long', day: 'numeric' };
@@ -464,12 +456,6 @@ function createMainShortcutRow(link) {
     dragHandle.title = 'Drag to reorder';
     dragHandle.textContent = '☰';
     
-    const iconInput = document.createElement('input');
-    iconInput.type = 'text';
-    iconInput.className = 'icon-input';
-    iconInput.value = link.icon || '';
-    iconInput.placeholder = 'Icon';
-    
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.className = 'name-input';
@@ -484,12 +470,11 @@ function createMainShortcutRow(link) {
     
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'fetch-favicon-btn';
-    btn.title = 'Fetch Favicon';
-    btn.textContent = '🌐';
+    btn.className = 'delete-btn';
+    btn.title = 'Delete';
+    btn.textContent = '🗑️';
     
     div.appendChild(dragHandle);
-    div.appendChild(iconInput);
     div.appendChild(nameInput);
     div.appendChild(urlInput);
     div.appendChild(btn);
@@ -506,12 +491,6 @@ function createSmallShortcutRow(link) {
     dragHandle.title = 'Drag to reorder';
     dragHandle.textContent = '☰';
     
-    const iconInput = document.createElement('input');
-    iconInput.type = 'text';
-    iconInput.className = 'icon-input';
-    iconInput.value = link.icon || '';
-    iconInput.placeholder = 'Icon';
-    
     const urlInput = document.createElement('input');
     urlInput.type = 'text';
     urlInput.className = 'url-input';
@@ -520,12 +499,11 @@ function createSmallShortcutRow(link) {
     
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'fetch-favicon-btn';
-    btn.title = 'Fetch Favicon';
-    btn.textContent = '🌐';
+    btn.className = 'delete-btn';
+    btn.title = 'Delete';
+    btn.textContent = '🗑️';
     
     div.appendChild(dragHandle);
-    div.appendChild(iconInput);
     div.appendChild(urlInput);
     div.appendChild(btn);
     return div;
@@ -561,11 +539,8 @@ settingsBtn.addEventListener('click', () => {
     const bgUrlInput = document.getElementById('bgUrlInput');
     bgUrlInput.value = bg && bg.startsWith('http') ? bg : '';
 
-    const slideshowEnabled = localStorage.getItem('slideshowEnabled') === 'true';
-    const slideshowCount = localStorage.getItem('slideshowCount') || 1;
-    document.getElementById('slideshowCheckbox').checked = slideshowEnabled;
-    document.getElementById('slideshowCountInput').value = slideshowCount;
-    document.getElementById('slideshowSettings').style.display = slideshowEnabled ? 'block' : 'none';
+    const clockFormat12h = localStorage.getItem('clockFormat12h') === 'true';
+    document.getElementById('clockFormatCheckbox').checked = clockFormat12h;
 
     // Remplir le formulaire Météo
     const weatherEnabled = localStorage.getItem('weatherEnabled') === 'true';
@@ -577,9 +552,7 @@ settingsBtn.addEventListener('click', () => {
     modal.classList.add('active');
 });
 
-document.getElementById('slideshowCheckbox').addEventListener('change', (e) => {
-    document.getElementById('slideshowSettings').style.display = e.target.checked ? 'block' : 'none';
-});
+    // No slideshow change event anymore
 
 document.getElementById('weatherCheckbox').addEventListener('change', (e) => {
     document.getElementById('weatherSettings').style.display = e.target.checked ? 'block' : 'none';
@@ -650,6 +623,16 @@ addGreetingBtn.addEventListener('click', () => {
     greetingsEdit.appendChild(createGreetingRowDOM(""));
 });
 
+document.getElementById('addMainShortcutBtn').addEventListener('click', () => {
+    const mainEdit = document.getElementById('mainShortcutsEdit');
+    mainEdit.appendChild(createMainShortcutRow({ name: "", url: "" }));
+});
+
+document.getElementById('addSmallShortcutBtn').addEventListener('click', () => {
+    const smallEdit = document.getElementById('smallShortcutsEdit');
+    smallEdit.appendChild(createSmallShortcutRow({ url: "" }));
+});
+
 closeBtn.addEventListener('click', () => {
     applyBackground(); // Annuler la prévisualisation si non sauvegardé
     modal.classList.remove('active');
@@ -661,7 +644,6 @@ saveBtn.addEventListener('click', () => {
     const newMainLinks = [];
     mainRows.forEach(row => {
         newMainLinks.push({
-            icon: row.querySelector('.icon-input').value,
             name: row.querySelector('.name-input').value,
             url: row.querySelector('.url-input').value
         });
@@ -672,7 +654,6 @@ saveBtn.addEventListener('click', () => {
     const newSmallLinks = [];
     smallRows.forEach(row => {
         newSmallLinks.push({
-            icon: row.querySelector('.icon-input').value,
             url: row.querySelector('.url-input').value
         });
     });
@@ -694,16 +675,8 @@ saveBtn.addEventListener('click', () => {
         localStorage.removeItem('customBackground');
     }
 
-    const slideshowEnabled = document.getElementById('slideshowCheckbox').checked;
-    const slideshowCount = parseInt(document.getElementById('slideshowCountInput').value) || 1;
-    
-    // Si on vient d'activer ou de modifier, on force un changement d'image pour le preview
-    if (slideshowEnabled && (localStorage.getItem('slideshowEnabled') !== 'true' || localStorage.getItem('slideshowCount') != slideshowCount)) {
-        localStorage.setItem('lastSlideshowTime', 0);
-    }
-
-    localStorage.setItem('slideshowEnabled', slideshowEnabled);
-    localStorage.setItem('slideshowCount', slideshowCount);
+    const clockFormat12h = document.getElementById('clockFormatCheckbox').checked;
+    localStorage.setItem('clockFormat12h', clockFormat12h);
 
     // Sauvegarder la météo
     const weatherEnabled = document.getElementById('weatherCheckbox').checked;
@@ -738,54 +711,14 @@ modal.addEventListener('click', (e) => {
     }
 });
 
-// Auto-compléter le favicon quand on modifie l'URL
-document.addEventListener('input', (e) => {
-    if (e.target.classList.contains('url-input')) {
-        const row = e.target.closest('.link-edit-row');
-        if (!row) return;
-        const iconInput = row.querySelector('.icon-input');
-        if (!iconInput) return;
-        
-        let url = e.target.value.trim();
-        if (url) {
-            try {
-                if (!url.startsWith('http')) url = 'https://' + url;
-                const domain = new URL(url).hostname;
-                // Si l'icône est vide ou si c'est déjà un favicon google, on le met à jour
-                if (!iconInput.value || iconInput.value.includes('google.com/s2/favicons')) {
-                    iconInput.value = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-                }
-            } catch (err) {
-                // Ignore invalid URL
-            }
-        }
-    }
-});
+// Auto-compléter le favicon quand on modifie l'URL (Plus nécessaire avec la génération automatique)
 
-// Récupérer le favicon dynamiquement
+// Récupérer le favicon dynamiquement (plus nécessaire car icônes automatiques) et gérer la suppression
 document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.fetch-favicon-btn');
-    if (btn) {
-        const row = btn.closest('.link-edit-row');
-        const urlInput = row.querySelector('.url-input');
-        const iconInput = row.querySelector('.icon-input');
-        
-        let url = urlInput.value.trim();
-        if (url) {
-            try {
-                if (!url.startsWith('http')) url = 'https://' + url;
-                const domain = new URL(url).hostname;
-                iconInput.value = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-            } catch (err) {
-                console.error('Invalid URL');
-            }
-        }
-    }
-    
-    // Supprimer un message de bienvenue
+    // Supprimer une ligne (raccourcis ou message de bienvenue)
     const delBtn = e.target.closest('.delete-btn');
     if (delBtn) {
-        delBtn.closest('.greeting-row').remove();
+        delBtn.closest('.link-edit-row').remove();
     }
 });
 
@@ -802,7 +735,7 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     const data = {};
     const keysToExport = [
         'customMainShortcuts', 'customSmallShortcuts', 'customGreetings',
-        'customBackground', 'slideshowEnabled', 'slideshowCount',
+        'customBackground', 'clockFormat12h',
         'weatherEnabled', 'weatherCity'
     ];
     

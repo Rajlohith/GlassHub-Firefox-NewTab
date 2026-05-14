@@ -1,13 +1,17 @@
 {
   "manifest_version": 3,
   "name": "GlassHub",
-  "version": "1.0",
+  "version": "1.1",
   "description": "A beautiful, customizable glassmorphism new tab page.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
   "chrome_settings_overrides": {
     "homepage": "newtab.html"
+  },
+  "icons": {
+    "48": "icon.png",
+    "128": "icon.png"
   },
   "permissions": [
     "history"
